@@ -1,0 +1,16 @@
+{
+  "orders": [
+    {
+      "id": 1,
+      "customerId": 101,
+      "totalPrice": 23.99,
+      "timestamp": "2025-07-12T14:23:00Z"
+    },
+    {
+      "id": 2,
+      "customerId": 102,
+      "totalPrice": 15.75,
+      "timestamp": "2025-07-11T10:15:00Z"
+    }
+  ]
+}

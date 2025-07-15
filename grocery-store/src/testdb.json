@@ -1,0 +1,10 @@
+{
+  "orders": [
+    { "id": 1, "customerId": 101, "totalPrice": 45.5, "timestamp": "2025-07-14T10:00:00Z" },
+    { "id": 2, "customerId": 102, "totalPrice": 30.0, "timestamp": "2025-07-14T11:00:00Z" }
+  ],
+  "items": [
+    { "id": 1, "name": "Tomato Soup", "price": 3.99 },
+    { "id": 2, "name": "Pizza Margherita", "price": 7.99 }
+  ]
+}
