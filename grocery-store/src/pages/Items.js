@@ -1,229 +1,259 @@
 import React, { useState, useEffect } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import TomatoLogo from '../images/TomatoLogo.png';
-import { NavLink } from 'react-router-dom';
 
-function Items() {
-    const [allItems, setAllItems] = useState([]);
+function ItemsList() {
+    const navigate = useNavigate();
+    const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortOption, setSortOption] = useState('default');
+    const [sortBy, setSortBy] = useState('');
+    const [sortOrder, setSortOrder] = useState('asc');
 
-    const itemsPerPage = 50;
+    const fetchItems = async (search = '', sort = '', order = 'asc') => {
+        setLoading(true);
+        setError(null);
 
+        try {
+            let url = `${process.env.REACT_APP_BASE_URL}/items`;
+            const params = new URLSearchParams();
 
-    useEffect(() => {
-        const fetchItems = async () => {
-            setLoading(true);
-            setError(null);
+            if (search) params.append('search', search);
+            if (sort) params.append('sort', sort);
+            if (order) params.append('order', order);
 
-            let url = 'http://localhost:8081/items';
-
-            if (sortOption === 'nameAsc') url += '?_sort=name&_order=asc';
-            else if (sortOption === 'nameDesc') url += '?_sort=name&_order=desc';
-            else if (sortOption === 'priceAsc') url += '?_sort=price&_order=asc';
-            else if (sortOption === 'priceDesc') url += '?_sort=price&_order=desc';
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Failed to fetch items');
-                const data = await response.json();
-                setAllItems(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
+            if (params.toString()) {
+                url += '?' + params.toString();
             }
-        };
 
-        fetchItems();
-    }, [sortOption]);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Failed to fetch items');
+            }
+            const data = await response.json();
 
-    const filteredItems = allItems.filter(item =>
-        typeof item === 'string'
-            ? item.toLowerCase().includes(searchTerm.toLowerCase())
-            : item.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+            // Map the backend data to match frontend expectations
+            const mappedItems = data.map(item => ({
+                id: item.itemID,
+                name: item.name,
+                description: item.description,
+                imageID: item.imageID,
+                itemPrice: item.itemPrice,
+                itemQuantity: item.itemQuantity,
+                discountCode: item.discountCode,
+                isOnSale: item.isOnSale
+            }));
 
-    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const displayedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
-
-    const goToPage = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+            setItems(mappedItems);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        fetchItems(searchTerm, sortBy, sortOrder);
+    };
+
+    const handleSortChange = (newSort) => {
+        setSortBy(newSort);
+        fetchItems(searchTerm, newSort, sortOrder);
+    };
+
+    const handleOrderChange = (newOrder) => {
+        setSortOrder(newOrder);
+        fetchItems(searchTerm, sortBy, newOrder);
+    };
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-
-
             <div style={{ backgroundColor: '#db3d3d', height: '30px' }} />
 
+            {/* Navbar */}
+            <nav style={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                gap: '20px',
+                padding: '10px 40px',
+                fontWeight: 'bold'
+            }}>
+                {['/', '/items', '/orders', '/EditItems'].map((path, i) => {
+                    const names = ['Home', 'Items', 'Orders', 'EditItems'];
+                    return (
+                        <NavLink
+                            key={path}
+                            to={path}
+                            style={({ isActive }) => ({
+                                textDecoration: isActive ? 'underline' : 'none',
+                                color: isActive ? '#db3d3d' : 'black'
+                            })}
+                        >
+                            {names[i]}
+                        </NavLink>
+                    );
+                })}
+            </nav>
 
-            <div style={{ flexGrow: 1 }}>
+            {/* Logo */}
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '-40px 0 20px 0' }}>
+                <img src={TomatoLogo} alt="Tomato Logo" style={{ width: '120px', height: '120px' }} />
+            </div>
 
-                {/* Navbar */}
-                <nav style={{
-                    display: 'flex',
-                    justifyContent: 'flex-start',
+            {/* Search and Filter Controls with Create Button */}
+            <div style={{ padding: '0 40px', marginBottom: '20px' }}>
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
                     gap: '20px',
-                    padding: '10px 40px',
-                    fontWeight: 'bold'
+                    flexWrap: 'wrap'
                 }}>
-                    {['/', '/items', '/orders', '/EditItems'].map((path, i) => {
-                        const names = ['Home', 'Items', 'Orders', 'EditItems'];
-                        return (
-                            <NavLink
-                                key={path}
-                                to={path}
-                                style={({ isActive }) => ({
-                                    textDecoration: isActive ? 'underline' : 'none',
-                                    color: isActive ? '#db3d3d' : 'black'
-                                })}
-                            >
-                                {names[i]}
-                            </NavLink>
-                        );
-                    })}
-                </nav>
-
-                {/* Logo */}
-                <div style={{ display: 'flex', justifyContent: 'center', margin: '-40px 0 10px 0' }}>
-                    <img src={TomatoLogo} alt="Tomato Logo" style={{ width: '120px', height: '120px' }} />
-                </div>
-
-                {/* Search */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        borderRadius: '15px',
-                        backgroundColor: '#f2edf7',
-                        padding: '5px 10px',
-                        width: '400px'
-                    }}>
-                        <span style={{ marginRight: '10px', fontSize: '20px' }}>☰</span>
+                    <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <input
                             type="text"
-                            placeholder="Hinted search text"
+                            placeholder="Search items..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{
-                                flexGrow: 1,
-                                border: 'none',
-                                outline: 'none',
-                                backgroundColor: '#f2edf7',
+                                padding: '8px 12px',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
                                 fontSize: '14px'
                             }}
                         />
-                        <span style={{ marginLeft: '10px', fontSize: '18px' }}>🔍</span>
-                    </div>
-                </div>
 
-                {/* Sort Dropdown */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-                    <select
-                        value={sortOption}
-                        onChange={(e) => setSortOption(e.target.value)}
-                        style={{ padding: '5px 10px', borderRadius: '5px', fontSize: '14px' }}
-                    >
-                        <option value="default">-- Sort Items --</option>
-                        <option value="nameAsc">Name ↑</option>
-                        <option value="nameDesc">Name ↓</option>
-                        <option value="priceAsc">Price ↑</option>
-                        <option value="priceDesc">Price ↓</option>
-                    </select>
-                </div>
-
-                {/* Items List */}
-                <div style={{
-                    margin: '0 auto',
-                    backgroundColor: '#f3eaea',
-                    width: '90%',
-                    height: '650px',
-                    overflowY: 'scroll',
-                    padding: '15px',
-                }}>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '10px',
-                        fontWeight: 'bold'
-                    }}>
-                        <div>List of Items</div>
-
-                    </div>
-
-                    {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
-                    {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
-                    {!loading && !error && displayedItems.map((item, index) => (
-                        <div
-                            key={index}
-                            style={{ padding: '5px 0', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between' }}
+                        <select
+                            value={sortBy}
+                            onChange={(e) => handleSortChange(e.target.value)}
+                            style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
                         >
-                            <span>{typeof item === 'string' ? item : item.name}</span>
-                            <span>${item.price?.toFixed(2)}</span>
-                        </div>
-                    ))}
-                </div>
+                            <option value="">Sort by...</option>
+                            <option value="price">Price</option>
+                            <option value="quantity">Quantity</option>
+                        </select>
 
+                        <select
+                            value={sortOrder}
+                            onChange={(e) => handleOrderChange(e.target.value)}
+                            style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+                        >
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+
+                        <button
+                            type="submit"
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#db3d3d',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Search
+                        </button>
+                    </form>
+
+                    <button
+                        onClick={() => navigate('/items/create')}
+                        style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#db3d3d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            transition: 'background-color 0.2s',
+                            whiteSpace: 'nowrap'
+                        }}
+                        onMouseOver={(e) => e.target.style.backgroundColor = '#c93333'}
+                        onMouseOut={(e) => e.target.style.backgroundColor = '#db3d3d'}
+                    >
+                        + Create New Item
+                    </button>
+                </div>
             </div>
 
-            {/* Pagination */}
+            {/* Items Grid */}
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '20px',
+                padding: '0 40px',
+                flex: 1
+            }}>
+                {items.map(item => (
+                    <div key={item.id} style={{
+                        backgroundColor: '#fff',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        border: '1px solid #ddd',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}>
+                        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
+                            {item.name}
+                            {item.isOnSale && (
+                                <span style={{
+                                    marginLeft: '10px',
+                                    backgroundColor: '#e74c3c',
+                                    color: 'white',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    fontSize: '12px'
+                                }}>
+                                    ON SALE
+                                </span>
+                            )}
+                        </h3>
+                        <p style={{ color: '#666', fontSize: '14px', margin: '0 0 10px 0' }}>
+                            {item.description}
+                        </p>
+                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2c3e50', marginBottom: '10px' }}>
+                            ${(item.itemPrice / 100).toFixed(2)}
+                        </div>
+                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
+                            Stock: {item.itemQuantity}
+                        </div>
+                        <Link
+                            to={`/items/${item.id}`}
+                            style={{
+                                display: 'inline-block',
+                                padding: '8px 16px',
+                                backgroundColor: '#db3d3d',
+                                color: 'white',
+                                textDecoration: 'none',
+                                borderRadius: '4px',
+                                fontSize: '14px'
+                            }}
+                        >
+                            View Details
+                        </Link>
+                    </div>
+                ))}
+            </div>
+
             <div style={{
                 backgroundColor: '#db3d3d',
-                padding: '10px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <span
-                    style={{ marginRight: '20px', color: '#fff', cursor: 'pointer' }}
-                    onClick={() => goToPage(currentPage - 1)}
-                >
-                    ← Previous
-                </span>
-
-                {[...Array(totalPages).keys()].map((i) => {
-                    const pageNum = i + 1;
-                    if (pageNum === 1 || pageNum === totalPages || Math.abs(pageNum - currentPage) <= 2) {
-                        return (
-                            <span
-                                key={pageNum}
-                                onClick={() => goToPage(pageNum)}
-                                style={{
-                                    margin: '0 5px',
-                                    padding: '5px 10px',
-                                    borderRadius: '5px',
-                                    backgroundColor: pageNum === currentPage ? '#8d1515' : 'transparent',
-                                    color: '#fff',
-                                    fontWeight: pageNum === currentPage ? 'bold' : 'normal',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                {pageNum}
-                            </span>
-                        );
-                    } else if (pageNum === currentPage - 3 || pageNum === currentPage + 3) {
-                        return <span key={pageNum} style={{ color: '#fff' }}>...</span>;
-                    } else {
-                        return null;
-                    }
-                })}
-
-                <span
-                    style={{ marginLeft: '20px', color: '#fff', cursor: 'pointer' }}
-                    onClick={() => goToPage(currentPage + 1)}
-                >
-                    Next →
-                </span>
-            </div>
-
+                height: '30px',
+                marginTop: '20px'
+            }} />
         </div>
     );
 }
 
-export default Items;
+export default ItemsList;

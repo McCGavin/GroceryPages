@@ -5,7 +5,9 @@ import Home from './pages/Home';
 // You’ll create these later:
 import Items from './pages/Items';
 import Orders from './pages/Orders';
-import EditItems from "./pages/EditItems";
+import EditItem from "./pages/EditItem";
+import ItemDetail from "./pages/ItemDetail";
+import CreateItem from "./pages/CreateItem";
 
 function App() {
     return (
@@ -13,8 +15,10 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/items" element={<Items />} />
+                <Route path="/items/:id" element={<ItemDetail />} />
                 <Route path="/orders" element={<Orders />} />
-                <Route path="/editItems" element={<EditItems />} />
+                <Route path="/items/:id/edit" element={<EditItem />} />
+                <Route path="/items/create" element={<CreateItem />} />
             </Routes>
         </Router>
     );
