@@ -72,120 +72,274 @@ function ItemsList() {
         fetchItems(searchTerm, sortBy, newOrder);
     };
 
+    const handleLogout = () => {
+        // Clear any stored auth data
+        localStorage.removeItem('authToken');
+        navigate('/');
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            minHeight: '100vh',
+            backgroundColor: '#f8f9fa'
+        }}>
             <div style={{ backgroundColor: '#db3d3d', height: '30px' }} />
 
             {/* Navbar */}
             <nav style={{
                 display: 'flex',
-                justifyContent: 'flex-start',
-                gap: '20px',
-                padding: '10px 40px',
-                fontWeight: 'bold'
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '15px 40px',
+                backgroundColor: '#fff',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                borderBottom: '3px solid #db3d3d'
             }}>
-                {['/', '/items', '/orders', '/EditItems'].map((path, i) => {
-                    const names = ['Home', 'Items', 'Orders', 'EditItems'];
-                    return (
-                        <NavLink
-                            key={path}
-                            to={path}
-                            style={({ isActive }) => ({
-                                textDecoration: isActive ? 'underline' : 'none',
-                                color: isActive ? '#db3d3d' : 'black'
-                            })}
-                        >
-                            {names[i]}
-                        </NavLink>
-                    );
-                })}
+                <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+                    <NavLink
+                        to="/items"
+                        style={({ isActive }) => ({
+                            textDecoration: 'none',
+                            color: isActive ? '#db3d3d' : '#2c3e50',
+                            fontWeight: '600',
+                            fontSize: '16px',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            backgroundColor: isActive ? '#ffeaea' : 'transparent',
+                            border: isActive ? '2px solid #db3d3d' : '2px solid transparent',
+                            transition: 'all 0.2s ease'
+                        })}
+                    >
+                        Items
+                    </NavLink>
+                    <NavLink
+                        to="/orders"
+                        style={({ isActive }) => ({
+                            textDecoration: 'none',
+                            color: isActive ? '#db3d3d' : '#2c3e50',
+                            fontWeight: '600',
+                            fontSize: '16px',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            backgroundColor: isActive ? '#ffeaea' : 'transparent',
+                            border: isActive ? '2px solid #db3d3d' : '2px solid transparent',
+                            transition: 'all 0.2s ease'
+                        })}
+                    >
+                        Orders
+                    </NavLink>
+                </div>
+                <button
+                    onClick={handleLogout}
+                    style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#e74c3c',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 2px 4px rgba(231, 76, 60, 0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#c0392b';
+                        e.target.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#e74c3c';
+                        e.target.style.transform = 'translateY(0)';
+                    }}
+                >
+                    Logout
+                </button>
             </nav>
 
             {/* Logo */}
-            <div style={{ display: 'flex', justifyContent: 'center', margin: '-40px 0 20px 0' }}>
-                <img src={TomatoLogo} alt="Tomato Logo" style={{ width: '120px', height: '120px' }} />
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                margin: '20px 0',
+                position: 'relative',
+                zIndex: 1
+            }}>
+                <img 
+                    src={TomatoLogo} 
+                    alt="Tomato Logo" 
+                    style={{ 
+                        width: '120px', 
+                        height: '120px',
+                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))'
+                    }} 
+                />
             </div>
 
-            {/* Search and Filter Controls with Create Button */}
-            <div style={{ padding: '0 40px', marginBottom: '20px' }}>
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    gap: '20px',
-                    flexWrap: 'wrap'
+            {/* Page Title */}
+            <div style={{
+                textAlign: 'center',
+                marginBottom: '30px'
+            }}>
+                <h1 style={{
+                    color: '#2c3e50',
+                    fontSize: '36px',
+                    fontWeight: '700',
+                    margin: '0 0 10px 0'
                 }}>
-                    <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <input
-                            type="text"
-                            placeholder="Search items..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{
-                                padding: '8px 12px',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                fontSize: '14px'
-                            }}
-                        />
+                    Item Management
+                </h1>
+                <p style={{
+                    color: '#666',
+                    fontSize: '16px',
+                    margin: '0'
+                }}>
+                    Browse and manage your inventory
+                </p>
+            </div>
 
-                        <select
-                            value={sortBy}
-                            onChange={(e) => handleSortChange(e.target.value)}
-                            style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-                        >
-                            <option value="">Sort by...</option>
-                            <option value="price">Price</option>
-                            <option value="quantity">Quantity</option>
-                        </select>
+            {/* Search and Filter Controls */}
+            <div style={{ 
+                padding: '0 40px', 
+                marginBottom: '30px',
+                display: 'flex',
+                justifyContent: 'center'
+            }}>
+                <div style={{
+                    backgroundColor: '#fff',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    width: '100%',
+                    maxWidth: '1000px'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '15px',
+                        flexWrap: 'nowrap'
+                    }}>
+                        <form onSubmit={handleSearch} style={{
+                            display: 'flex',
+                            gap: '15px',
+                            alignItems: 'center',
+                            flex: 1,
+                            minWidth: 0
+                        }}>
+                            <input
+                                type="text"
+                                placeholder="Search items..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{
+                                    padding: '12px 16px',
+                                    border: '2px solid #e1e5e9',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    flex: 1,
+                                    minWidth: '200px',
+                                    outline: 'none',
+                                    transition: 'border-color 0.2s ease'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#db3d3d'}
+                                onBlur={(e) => e.target.style.borderColor = '#e1e5e9'}
+                            />
 
-                        <select
-                            value={sortOrder}
-                            onChange={(e) => handleOrderChange(e.target.value)}
-                            style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-                        >
-                            <option value="asc">Ascending</option>
-                            <option value="desc">Descending</option>
-                        </select>
+                            <select
+                                value={sortBy}
+                                onChange={(e) => handleSortChange(e.target.value)}
+                                style={{
+                                    padding: '12px 16px',
+                                    border: '2px solid #e1e5e9',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    outline: 'none',
+                                    backgroundColor: '#fff',
+                                    minWidth: '120px'
+                                }}
+                            >
+                                <option value="">Sort by...</option>
+                                <option value="price">Price</option>
+                                <option value="quantity">Quantity</option>
+                            </select>
+
+                            <select
+                                value={sortOrder}
+                                onChange={(e) => handleOrderChange(e.target.value)}
+                                style={{
+                                    padding: '12px 16px',
+                                    border: '2px solid #e1e5e9',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    outline: 'none',
+                                    backgroundColor: '#fff',
+                                    minWidth: '110px'
+                                }}
+                            >
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+
+                            <button
+                                type="submit"
+                                style={{
+                                    padding: '12px 20px',
+                                    backgroundColor: '#db3d3d',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    transition: 'all 0.2s ease',
+                                    boxShadow: '0 2px 4px rgba(219, 61, 61, 0.2)',
+                                    whiteSpace: 'nowrap'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.backgroundColor = '#c93333';
+                                    e.target.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.backgroundColor = '#db3d3d';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                Search
+                            </button>
+                        </form>
 
                         <button
-                            type="submit"
+                            onClick={() => navigate('/items/create')}
                             style={{
-                                padding: '8px 16px',
-                                backgroundColor: '#db3d3d',
+                                padding: '12px 20px',
+                                backgroundColor: '#27ae60',
                                 color: 'white',
                                 border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
+                                borderRadius: '8px',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                fontWeight: '600',
+                                boxShadow: '0 2px 4px rgba(39, 174, 96, 0.2)',
+                                transition: 'all 0.2s ease',
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#219a52';
+                                e.target.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = '#27ae60';
+                                e.target.style.transform = 'translateY(0)';
                             }}
                         >
-                            Search
+                            Create New Item
                         </button>
-                    </form>
-
-                    <button
-                        onClick={() => navigate('/items/create')}
-                        style={{
-                            padding: '10px 20px',
-                            backgroundColor: '#db3d3d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            transition: 'background-color 0.2s',
-                            whiteSpace: 'nowrap'
-                        }}
-                        onMouseOver={(e) => e.target.style.backgroundColor = '#c93333'}
-                        onMouseOut={(e) => e.target.style.backgroundColor = '#db3d3d'}
-                    >
-                        + Create New Item
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -195,7 +349,8 @@ function ItemsList() {
                 gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
                 gap: '20px',
                 padding: '0 40px',
-                flex: 1
+                flex: 1,
+                marginBottom: '40px'
             }}>
                 {items.map(item => (
                     <div key={item.id} style={{
@@ -249,8 +404,7 @@ function ItemsList() {
 
             <div style={{
                 backgroundColor: '#db3d3d',
-                height: '30px',
-                marginTop: '20px'
+                height: '30px'
             }} />
         </div>
     );

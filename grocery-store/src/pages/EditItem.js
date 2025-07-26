@@ -106,6 +106,12 @@ function EditItem() {
         }
     };
 
+    const handleLogout = () => {
+        // Clear any stored authentication data
+        localStorage.removeItem('authToken');
+        navigate('/');
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
@@ -116,30 +122,82 @@ function EditItem() {
             {/* Navbar */}
             <nav style={{
                 display: 'flex',
-                justifyContent: 'flex-start',
-                gap: '20px',
-                padding: '10px 40px',
-                fontWeight: 'bold'
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '15px 40px',
+                backgroundColor: '#fff',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                borderBottom: '3px solid #db3d3d'
             }}>
-                {['/', '/items', '/orders', '/EditItems'].map((path, i) => {
-                    const names = ['Home', 'Items', 'Orders', 'EditItems'];
-                    return (
-                        <NavLink
-                            key={path}
-                            to={path}
-                            style={({ isActive }) => ({
-                                textDecoration: isActive ? 'underline' : 'none',
-                                color: isActive ? '#db3d3d' : 'black'
-                            })}
-                        >
-                            {names[i]}
-                        </NavLink>
-                    );
-                })}
+                <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+                    <NavLink
+                        to="/items"
+                        style={({ isActive }) => ({
+                            textDecoration: 'none',
+                            color: isActive ? '#db3d3d' : '#2c3e50',
+                            fontWeight: '600',
+                            fontSize: '16px',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            backgroundColor: isActive ? '#ffeaea' : 'transparent',
+                            border: isActive ? '2px solid #db3d3d' : '2px solid transparent',
+                            transition: 'all 0.2s ease'
+                        })}
+                    >
+                        Items
+                    </NavLink>
+                    <NavLink
+                        to="/orders"
+                        style={({ isActive }) => ({
+                            textDecoration: 'none',
+                            color: isActive ? '#db3d3d' : '#2c3e50',
+                            fontWeight: '600',
+                            fontSize: '16px',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            backgroundColor: isActive ? '#ffeaea' : 'transparent',
+                            border: isActive ? '2px solid #db3d3d' : '2px solid transparent',
+                            transition: 'all 0.2s ease'
+                        })}
+                    >
+                        Orders
+                    </NavLink>
+                </div>
+                <button
+                    onClick={handleLogout}
+                    style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#e74c3c',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 2px 4px rgba(231, 76, 60, 0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#c0392b';
+                        e.target.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#e74c3c';
+                        e.target.style.transform = 'translateY(0)';
+                    }}
+                >
+                    Logout
+                </button>
             </nav>
 
             {/* Logo */}
-            <div style={{ display: 'flex', justifyContent: 'center', margin: '-40px 0 20px 0' }}>
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                margin: '20px 0 20px 0',  // Remove negative margin
+                position: 'relative',     // Ensure proper layering
+                zIndex: 1                 // Lower z-index than navbar
+            }}>
                 <img src={TomatoLogo} alt="Tomato Logo" style={{ width: '120px', height: '120px' }} />
             </div>
 

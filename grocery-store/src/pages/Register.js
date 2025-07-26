@@ -2,20 +2,36 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import TomatoLogo from '../images/TomatoLogo.png';
 
-function Home() {
+function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
+        // Check if passwords match
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
+
+        // Basic password validation
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/auth/login`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -27,22 +43,60 @@ function Home() {
             });
 
             if (!response.ok) {
-                throw new Error('Invalid username or password');
+                if (response.status === 409) {
+                    throw new Error('Username already exists');
+                } else {
+                    throw new Error('Failed to create account');
+                }
             }
 
-            const data = await response.json();
+            setSuccess(true);
             
-            // Store authentication data if needed
-            // localStorage.setItem('authToken', data.token); // if your API returns a token
-            
-            // Navigate to items page on successful login
-            navigate('/items');
+            // Redirect to login page after 2 seconds
+            setTimeout(() => {
+                navigate('/');
+            }, 2000);
+
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
     };
+
+    if (success) {
+        return (
+            <div style={{
+                backgroundColor: '#f8f9fa',
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <div style={{
+                    backgroundColor: '#fff',
+                    borderRadius: '12px',
+                    padding: '40px',
+                    textAlign: 'center',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                    maxWidth: '400px'
+                }}>
+                    <div style={{
+                        backgroundColor: '#d4edda',
+                        color: '#155724',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        marginBottom: '20px'
+                    }}>
+                        <h2 style={{ margin: '0 0 10px 0' }}>Account Created Successfully!</h2>
+                        <p style={{ margin: '0' }}>Redirecting you to login...</p>
+                    </div>
+                    <img src={TomatoLogo} alt="Tomato Logo" style={{ width: '80px', height: '80px' }} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div style={{
@@ -52,6 +106,28 @@ function Home() {
             flexDirection: 'column'
         }}>
             <div style={{ backgroundColor: '#db3d3d', height: '30px' }} />
+
+            {/* Back to login link */}
+            <div style={{
+                padding: '15px 40px',
+                backgroundColor: '#fff',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+                <Link 
+                    to="/" 
+                    style={{
+                        textDecoration: 'none',
+                        color: '#db3d3d',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                    }}
+                >
+                    ← Back to Login
+                </Link>
+            </div>
 
             {/* Main Content Container */}
             <div style={{
@@ -83,18 +159,18 @@ function Home() {
                         fontWeight: 'bold',
                         margin: '0 0 10px 0'
                     }}>
-                        Welcome Back
+                        Create Account
                     </h1>
                     <p style={{
                         color: '#666',
                         fontSize: '16px',
                         margin: '0'
                     }}>
-                        Sign in to access your grocery store
+                        Join our grocery store management system
                     </p>
                 </div>
 
-                {/* Login Form */}
+                {/* Registration Form */}
                 <div style={{
                     backgroundColor: '#fff',
                     border: 'none',
@@ -119,7 +195,7 @@ function Home() {
                         </div>
                     )}
 
-                    <form onSubmit={handleLogin} style={{ width: '100%' }}>
+                    <form onSubmit={handleRegister} style={{ width: '100%' }}>
                         <div style={{ marginBottom: '24px' }}>
                             <label style={{
                                 display: 'block',
@@ -132,9 +208,42 @@ function Home() {
                             </label>
                             <input 
                                 type="text" 
-                                placeholder="Enter your username"
+                                placeholder="Choose a username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
+                                required
+                                disabled={loading}
+                                style={{
+                                    width: '100%',
+                                    padding: '14px 16px',
+                                    border: '2px solid #e1e5e9',
+                                    borderRadius: '8px',
+                                    fontSize: '16px',
+                                    outline: 'none',
+                                    transition: 'border-color 0.2s ease',
+                                    boxSizing: 'border-box',
+                                    backgroundColor: loading ? '#f5f5f5' : '#fff'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#db3d3d'}
+                                onBlur={(e) => e.target.style.borderColor = '#e1e5e9'}
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontWeight: '600',
+                                color: '#333',
+                                fontSize: '14px'
+                            }}>
+                                Password
+                            </label>
+                            <input 
+                                type="password" 
+                                placeholder="Create a password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 required
                                 disabled={loading}
                                 style={{
@@ -161,13 +270,13 @@ function Home() {
                                 color: '#333',
                                 fontSize: '14px'
                             }}>
-                                Password
+                                Confirm Password
                             </label>
                             <input 
                                 type="password" 
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Confirm your password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                                 disabled={loading}
                                 style={{
@@ -217,7 +326,7 @@ function Home() {
                                 }
                             }}
                         >
-                            {loading ? 'Signing In...' : 'Sign In'}
+                            {loading ? 'Creating Account...' : 'Create Account'}
                         </button>
                     </form>
                 </div>
@@ -230,9 +339,9 @@ function Home() {
                     fontSize: '14px'
                 }}>
                     <p style={{ margin: '0' }}>
-                        Don't have an account? 
+                        Already have an account? 
                         <Link 
-                            to="/register" 
+                            to="/" 
                             style={{
                                 color: '#db3d3d',
                                 textDecoration: 'none',
@@ -240,7 +349,7 @@ function Home() {
                                 marginLeft: '4px'
                             }}
                         >
-                            Create one here
+                            Sign in here
                         </Link>
                     </p>
                 </div>
@@ -254,4 +363,4 @@ function Home() {
     );
 }
 
-export default Home;
+export default Register;
