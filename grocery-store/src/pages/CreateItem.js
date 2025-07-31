@@ -13,6 +13,7 @@ function CreateItem() {
         discountCode: '',
         isOnSale: false
     });
+    const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -24,25 +25,52 @@ function CreateItem() {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
-            const submitData = {
-                ...formData,
-                itemPrice: parseInt(formData.itemPrice), // Convert to cents
-                itemQuantity: parseInt(formData.itemQuantity)
-            };
+            let response;
+            
+            if (image) {
+                // Use form data for image upload
+                const submitData = new FormData();
+                submitData.append('name', formData.name);
+                submitData.append('description', formData.description);
+                submitData.append('itemPrice', parseInt(formData.itemPrice));
+                submitData.append('itemQuantity', parseInt(formData.itemQuantity));
+                submitData.append('discountCode', formData.discountCode || '');
+                submitData.append('isOnSale', formData.isOnSale);
+                submitData.append('image', image);
 
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/items`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(submitData)
-            });
+                response = await fetch(`${process.env.REACT_APP_BASE_URL}/items/with-image`, {
+                    method: 'POST',
+                    body: submitData
+                });
+            } else {
+                // Use existing JSON approach
+                const submitData = {
+                    ...formData,
+                    itemPrice: parseInt(formData.itemPrice),
+                    itemQuantity: parseInt(formData.itemQuantity)
+                };
+
+                response = await fetch(`${process.env.REACT_APP_BASE_URL}/items`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(submitData)
+                });
+            }
 
             if (!response.ok) {
                 throw new Error('Failed to create item');
@@ -57,7 +85,6 @@ function CreateItem() {
     };
 
     const handleLogout = () => {
-        // Clear any stored authentication data
         localStorage.removeItem('authToken');
         navigate('/');
     };
@@ -141,9 +168,9 @@ function CreateItem() {
             <div style={{ 
                 display: 'flex', 
                 justifyContent: 'center', 
-                margin: '20px 0 20px 0',  // Remove negative margin
-                position: 'relative',     // Ensure proper layering
-                zIndex: 1                 // Lower z-index than navbar
+                margin: '20px 0 20px 0',
+                position: 'relative',
+                zIndex: 1
             }}>
                 <img src={TomatoLogo} alt="Tomato Logo" style={{ width: '120px', height: '120px' }} />
             </div>
@@ -231,6 +258,27 @@ function CreateItem() {
                                 fontSize: '16px'
                             }}
                         />
+                    </div>
+
+                    <div style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                            Upload Image File
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            style={{
+                                width: '100%',
+                                padding: '10px',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                fontSize: '16px'
+                            }}
+                        />
+                        <small style={{ color: '#666', fontSize: '14px' }}>
+                            Choose an image file to upload. This will override the Image ID field above.
+                        </small>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>

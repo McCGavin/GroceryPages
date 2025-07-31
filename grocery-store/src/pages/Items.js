@@ -33,7 +33,6 @@ function ItemsList() {
             }
             const data = await response.json();
 
-            // Map the backend data to match frontend expectations
             const mappedItems = data.map(item => ({
                 id: item.itemID,
                 name: item.name,
@@ -232,7 +231,7 @@ function ItemsList() {
                         }}>
                             <input
                                 type="text"
-                                placeholder="Search items..."
+                                placeholder="Search by Item Name, Description, or ID..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 style={{
@@ -360,6 +359,46 @@ function ItemsList() {
                         border: '1px solid #ddd',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}>
+                        <div style={{
+                            width: '100%',
+                            height: '200px',
+                            marginBottom: '15px',
+                            borderRadius: '6px',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            {item.imageID ? (
+                                <img 
+                                    src={item.imageID} 
+                                    alt={item.name}
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '100%', 
+                                        objectFit: 'cover'
+                                    }}
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                />
+                            ) : null}
+                            <div style={{
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: '#f8f9fa',
+                                display: item.imageID ? 'none' : 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '2px dashed #dee2e6',
+                                color: '#6c757d',
+                                flexDirection: 'column'
+                            }}>
+                                <div style={{ fontSize: '32px', marginBottom: '5px' }}>📦</div>
+                                <span style={{ fontSize: '12px' }}>No Image</span>
+                            </div>
+                        </div>
                         <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
                             {item.name}
                             {item.isOnSale && (

@@ -372,8 +372,8 @@ function Orders() {
                                 backgroundColor: '#fff'
                             }}
                         >
-                            <option value="desc">Newest First</option>
-                            <option value="asc">Oldest First</option>
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
                         </select>
 
                         <button
@@ -513,7 +513,7 @@ function Orders() {
                                 {formatDate(order.orderTime)}
                             </div>
 
-                            {/* Action Buttons - Always at bottom */}
+                            {/*Action Buttons*/}
                             <div style={{
                                 display: 'flex',
                                 gap: '10px',

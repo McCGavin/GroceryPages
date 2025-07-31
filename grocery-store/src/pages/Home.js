@@ -31,11 +31,7 @@ function Home() {
             }
 
             const data = await response.json();
-            
-            // Store authentication data if needed
-            // localStorage.setItem('authToken', data.token); // if your API returns a token
-            
-            // Navigate to items page on successful login
+
             navigate('/items');
         } catch (err) {
             setError(err.message);

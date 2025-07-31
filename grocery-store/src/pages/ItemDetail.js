@@ -113,40 +113,63 @@ function ItemDetail() {
                 gridTemplateColumns: 'minmax(300px, 400px) 1fr',
                 gap: '40px',
                 padding: '0 20px 40px 20px',
-                maxWidth: '1200px',
+                maxWidth: '1800px',
                 margin: '0 auto'
             }}>
                 {/* Left Panel */}
                 <div style={{
                     backgroundColor: '#fff',
                     borderRadius: '16px',
-                    padding: '30px',
+                    padding: '20px',
                     boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: '360px'
+                    textAlign: 'center',
+                    alignSelf: 'start'
                 }}>
                     <div style={{
                         width: '100%',
-                        height: '100%',
-                        backgroundColor: '#f8f9fa',
+                        height: '250px',
                         borderRadius: '12px',
                         display: 'flex',
-                        flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        border: '2px dashed #dee2e6',
-                        color: '#6c757d',
-                        padding: '40px',
-                        boxSizing: 'border-box',
-                        textAlign: 'center'
+                        overflow: 'hidden'
                     }}>
-                        <div style={{ fontSize: '48px', marginBottom: '10px' }}>📦</div>
-                        <p style={{ margin: 0, fontSize: '14px' }}>
-                            Image ID: {item.imageID || 'None'}
-                        </p>
+                        {item.imageID ? (
+                            <img 
+                                src={item.imageID} 
+                                alt={item.name}
+                                style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    borderRadius: '12px'
+                                }}
+                                onError={(e) => {
+                                    // Fallback if image fails to load
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
+                            />
+                        ) : null}
+                        <div style={{
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: '#f8f9fa',
+                            borderRadius: '12px',
+                            display: item.imageID ? 'none' : 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '2px dashed #dee2e6',
+                            color: '#6c757d',
+                            flexDirection: 'column'
+                        }}>
+                            <div style={{ fontSize: '48px', marginBottom: '10px' }}>📦</div>
+                            <p>No Image Available</p>
+                        </div>
                     </div>
+                    <p style={{ marginTop: '10px', fontSize: '14px', color: '#666', margin: '10px 0 0 0' }}>
+                        Product Image
+                    </p>
                 </div>
 
 
