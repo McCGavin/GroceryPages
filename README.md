@@ -45,7 +45,7 @@ This project was inspired by internal tools used by grocery stores for daily ope
 3. Enter the following information:
    - A unique username
    - A password (minimum 6 characters, confirmed)
-   - **Security Note:** Use a throwaway password — passwords are stored in plain text for demo purposes
+   - **Security Note:** Use a throwaway password - passwords are stored in plain text for demo purposes
 4. Click "Create Account" to complete registration
 
 **Signing In:**
